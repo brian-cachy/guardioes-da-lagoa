@@ -109,7 +109,9 @@
     dir: false,
     vistos: {},
     relogio: 0,
-    avisoTimer: 0
+    avisoTimer: 0,
+    nivelUpTimer: 0,
+    nivelUpNumero: 0
   };
 
   var ultimoQuadro = 0;
@@ -186,6 +188,8 @@
     estado.alvoX = null;
     estado.vistos = {};
     estado.pausado = false;
+    estado.nivelUpTimer = 0;
+    estado.nivelUpNumero = 0;
     el.botaoPausa.textContent = "⏸ Pausar";
     limparAviso();
     atualizarHud();
@@ -342,6 +346,8 @@
     var novo = nivelPorPontos(estado.pontos);
     if (novo > estado.nivel) {
       estado.nivel = novo;
+      estado.nivelUpTimer = 2.5;
+      estado.nivelUpNumero = novo;
       mostrarAviso("Nível " + novo + "! Os resíduos estão caindo mais rápido.", "bom");
     }
   }
@@ -469,6 +475,8 @@
       estado.avisoTimer -= dt;
       if (estado.avisoTimer <= 0) { limparAviso(); }
     }
+
+    if (estado.nivelUpTimer > 0) { estado.nivelUpTimer -= dt; }
 
     atualizarHud();
 
@@ -650,6 +658,93 @@
     }
   }
 
+  function retanguloCanto(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  function desenharHUD() {
+    if (!estado.rodando) { return; }
+    ctx.save();
+
+    // Fundo semi-transparente
+    ctx.fillStyle = "rgba(10, 45, 55, 0.62)";
+    retanguloCanto(8, 8, 148, 58, 8);
+    ctx.fill();
+
+    // Borda sutil
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+    ctx.lineWidth = 1;
+    retanguloCanto(8, 8, 148, 58, 8);
+    ctx.stroke();
+
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+
+    // Pontos
+    ctx.fillStyle = "#f2b441";
+    ctx.font = "bold 13px 'Trebuchet MS', sans-serif";
+    ctx.fillText("PONTOS", 20, 27);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 18px 'Trebuchet MS', sans-serif";
+    ctx.fillText(estado.pontos, 80, 27);
+
+    // Nível
+    ctx.fillStyle = "#7fd8b0";
+    ctx.font = "bold 13px 'Trebuchet MS', sans-serif";
+    ctx.fillText("NÍVEL", 20, 51);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 18px 'Trebuchet MS', sans-serif";
+    ctx.fillText(estado.nivel, 80, 51);
+
+    ctx.restore();
+  }
+
+  function desenharNotificacaoNivel() {
+    var t = estado.nivelUpTimer;
+    if (t <= 0) { return; }
+
+    var alfa = t < 0.8 ? t / 0.8 : 1;
+    var cy = CONFIG.ALTURA / 2 - 20;
+
+    ctx.save();
+    ctx.globalAlpha = alfa;
+
+    // Fundo
+    ctx.fillStyle = "rgba(10, 45, 55, 0.82)";
+    retanguloCanto(CONFIG.LARGURA / 2 - 130, cy - 42, 260, 84, 12);
+    ctx.fill();
+
+    // Borda dourada
+    ctx.strokeStyle = "#f2b441";
+    ctx.lineWidth = 2;
+    retanguloCanto(CONFIG.LARGURA / 2 - 130, cy - 42, 260, 84, 12);
+    ctx.stroke();
+
+    // Texto principal
+    ctx.fillStyle = "#f2b441";
+    ctx.font = "bold 32px 'Trebuchet MS', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("Nível " + estado.nivelUpNumero + "!", CONFIG.LARGURA / 2, cy - 10);
+
+    // Subtexto
+    ctx.fillStyle = "#c8eedd";
+    ctx.font = "14px 'Trebuchet MS', sans-serif";
+    ctx.fillText("Os resíduos estão mais rápidos!", CONFIG.LARGURA / 2, cy + 22);
+
+    ctx.restore();
+  }
+
   function desenharPausa() {
     ctx.fillStyle = "rgba(14, 59, 67, 0.65)";
     ctx.fillRect(0, 0, CONFIG.LARGURA, CONFIG.ALTURA);
@@ -669,6 +764,8 @@
     desenharItens();
     desenharBarco();
     desenharEfeitos();
+    desenharHUD();
+    if (estado.nivelUpTimer > 0) { desenharNotificacaoNivel(); }
     if (estado.pausado) { desenharPausa(); }
   }
 
