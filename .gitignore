@@ -1,0 +1,11 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+.idea/
+.vscode/
+
+# Banco de dados e chave secreta locais (não vão para o GitHub)
+instance/*
+!instance/.gitkeep

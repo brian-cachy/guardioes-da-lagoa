@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block titulo %}Ranking{% endblock %}
+
+{% block conteudo %}
+<section class="cartao">
+  <h1>Ranking dos jogadores</h1>
+  <p class="nota">Cada jogador aparece uma vez, com a sua melhor partida.</p>
+
+  <div class="ranking-acoes">
+    {% if session.get("user_id") %}
+      <a class="botao" href="{{ url_for('jogo') }}">🎮 Jogar novamente</a>
+    {% else %}
+      <a class="botao" href="{{ url_for('login') }}">🎮 Entrar para jogar</a>
+    {% endif %}
+  </div>
+
+  {% if ranking %}
+    <div class="tabela-rolagem">
+      <table class="tabela-ranking">
+        <caption class="so-leitor">Os 10 melhores jogadores</caption>
+        <thead>
+          <tr>
+            <th scope="col">Posição</th>
+            <th scope="col">Jogador</th>
+            <th scope="col">Pontos</th>
+            <th scope="col">Nível</th>
+            <th scope="col">Tempo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in ranking %}
+            <tr{% if usuario_atual and item["usuario"]|lower == usuario_atual|lower %} class="eu"{% endif %}>
+              <td>{{ loop.index }}</td>
+              <td>{{ item["nome"] }}{% if usuario_atual and item["usuario"]|lower == usuario_atual|lower %} <span class="selo">você</span>{% endif %}</td>
+              <td>{{ item["pontos"] }}</td>
+              <td>{{ item["nivel"] }}</td>
+              <td>{{ item["tempo"] }}s</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p>Ainda não há partidas registradas. Jogue a primeira e abra o ranking!</p>
+  {% endif %}
+</section>
+{% endblock %}

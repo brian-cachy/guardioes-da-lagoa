@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block titulo %}Jogar - Guardiões da Lagoa{% endblock %}
+
+{% block conteudo %}
+<section class="area-jogo">
+  <div class="hud" aria-live="off">
+    <div>Pontos: <strong id="hudPontos">0</strong></div>
+    <div>Nível: <strong id="hudNivel">1</strong></div>
+    <div>Tempo: <strong id="hudTempo">0</strong>s</div>
+    <div>Sequência: <strong id="hudSequencia">0</strong> <span id="hudMultiplicador" class="multiplicador">x1</span></div>
+    <button id="botaoPausa" class="botao-pausa" type="button" disabled>⏸ Pausar</button>
+  </div>
+
+  <div class="saude">
+    <label for="barraSaude">
+      Saúde da lagoa: <strong id="textoSaude">100 - Saudável</strong>
+    </label>
+    <div class="barra-fundo">
+      <div id="barraSaude" class="barra-nivel" data-estado="boa" role="progressbar"
+           aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"></div>
+    </div>
+    <small>Indicador educativo do jogo, não é uma medição científica
+      da qualidade real da água da Lagoa de Maricá.</small>
+  </div>
+
+  <div id="aviso" class="aviso" aria-live="polite"></div>
+
+  <div class="moldura">
+    <canvas id="areaJogo" width="480" height="640"
+            aria-label="Área do jogo: recolha os resíduos antes que caiam na lagoa e deixe os animais voltarem à água"></canvas>
+
+    <div id="telaInicio" class="tela-sobreposta">
+      <h2>Pronto para limpar a lagoa?</h2>
+      <p>Recolha o lixo, deixe os animais em paz.</p>
+      {% if melhor %}
+        <p class="recorde">Seu recorde: <strong>{{ melhor["pontos"] }}</strong> pontos (nível {{ melhor["nivel"] }})</p>
+      {% endif %}
+      <button id="botaoComecar" class="botao" type="button">▶ Começar</button>
+    </div>
+
+    <div id="telaFim" class="tela-sobreposta" hidden>
+      <h2>Fim de jogo</h2>
+      <p>Pontuação: <strong id="fimPontos">0</strong></p>
+      <p>Nível alcançado: <strong id="fimNivel">1</strong></p>
+      <p>Tempo: <strong id="fimTempo">0</strong>s</p>
+      <p id="fimStatus" class="status-salvo" aria-live="polite"></p>
+      <p id="fimDica" class="dica-final"></p>
+      <div class="acoes-fim">
+        <button id="botaoReiniciar" class="botao" type="button">↻ Jogar novamente</button>
+        <a class="botao botao-secundario" href="{{ url_for('ranking') }}">🏆 Ver ranking</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="controles-toque">
+    <button id="botaoEsquerda" type="button" aria-label="Mover para a esquerda">◀</button>
+    <button id="botaoDireita" type="button" aria-label="Mover para a direita">▶</button>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.GAME_SESSION = {
+    usuarioLogado: {{ 'true' if session.get('user_id') else 'false' }},
+    csrf: {{ csrf_token()|tojson }}
+  };
+</script>
+<script src="{{ url_for('static', filename='js/game.js') }}"></script>
+{% endblock %}

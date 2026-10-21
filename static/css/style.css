@@ -1,0 +1,407 @@
+/* ==========================================================================
+   Guardiões da Lagoa de Maricá
+   Paleta: fundo da lagoa (azul-petróleo), água, mangue, sol e coral (alerta)
+   ========================================================================== */
+
+:root {
+  --lagoa-fundo: #0e3b43;
+  --azul-escuro: #0e3b43;
+  --agua: #1f8a93;
+  --agua-clara: #bfe6e4;
+  --mangue: #2f6b3a;
+  --sol: #f2b441;
+  --sol-escuro: #d99a1f;
+  --coral: #c8483f;
+  --tinta: #12313a;
+  --tinta-suave: #4b6770;
+  --fundo: #e8f1ee;
+  --cartao: #ffffff;
+  --borda: #c9d7df;
+  --raio: 10px;
+  --fonte: "Trebuchet MS", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--fonte);
+  color: var(--tinta);
+  background: var(--fundo);
+  line-height: 1.5;
+}
+
+h1, h2 { line-height: 1.2; margin: 0 0 0.8rem; }
+h1 { font-size: 1.8rem; }
+h2 { font-size: 1.25rem; margin-top: 1.4rem; }
+p { margin: 0 0 0.9rem; }
+
+:focus-visible {
+  outline: 3px solid var(--sol);
+  outline-offset: 2px;
+}
+
+.so-leitor {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.pular {
+  position: absolute;
+  left: 0.5rem;
+  top: -4rem;
+  background: var(--sol);
+  color: var(--tinta);
+  padding: 0.5rem 0.9rem;
+  border-radius: 0 0 8px 8px;
+  font-weight: bold;
+  z-index: 50;
+}
+.pular:focus { top: 0; }
+
+/* ---------- Topo ---------- */
+.topo {
+  background: var(--lagoa-fundo);
+  padding: 0.8rem 1rem;
+  border-bottom: 4px solid var(--agua);
+}
+
+.topo-conteudo {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.logo {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.link-menu {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
+.link-menu:hover { text-decoration: underline; }
+
+.usuario { color: var(--agua-clara); font-weight: bold; }
+
+.form-sair { margin: 0; }
+.link-botao {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* ---------- Conteúdo ---------- */
+.conteudo {
+  flex: 1;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 2rem;
+}
+
+.rodape {
+  text-align: center;
+  padding: 1rem;
+  color: var(--tinta-suave);
+  font-size: 0.9rem;
+}
+.rodape p { margin: 0; }
+
+.cartao {
+  background: var(--cartao);
+  border-radius: 14px;
+  padding: 1.6rem;
+  box-shadow: 0 2px 10px rgba(14, 59, 67, 0.1);
+}
+
+.nota { color: var(--tinta-suave); }
+
+.lista-regras { padding-left: 1.2rem; }
+.lista-regras li { margin-bottom: 0.4rem; }
+
+/* ---------- Botões ---------- */
+.botao {
+  display: inline-block;
+  background: var(--sol);
+  color: var(--tinta);
+  border: 0;
+  border-radius: var(--raio);
+  padding: 0.75rem 1.3rem;
+  font: inherit;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.botao:hover { background: var(--sol-escuro); }
+
+.botao-secundario {
+  background: var(--agua-clara);
+  margin-top: 0;
+}
+.botao-secundario:hover { background: #a6d8d5; }
+
+/* ---------- Formulários ---------- */
+.form-card { max-width: 420px; margin: 0 auto; }
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.campo label { font-weight: bold; }
+.campo small { color: var(--tinta-suave); }
+
+.campo input {
+  padding: 0.8rem;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 1rem;
+}
+
+.texto-link { margin-top: 1rem; text-align: center; }
+.texto-link a { color: var(--azul-escuro); font-weight: bold; }
+
+/* ---------- Mensagens ---------- */
+.mensagens { max-width: 720px; margin: 0 auto 1rem auto; }
+
+.alerta {
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.7rem;
+  font-weight: bold;
+}
+.alerta.success { background: #e7f9ee; color: #1f6f42; border: 1px solid #b7e0c3; }
+.alerta.danger  { background: #fdeaea; color: #9b1b1b; border: 1px solid #f0b9b9; }
+.alerta.warning { background: #fff5df; color: #8c6200; border: 1px solid #f2d58a; }
+.alerta.info    { background: #edf6ff; color: #1d4b7a; border: 1px solid #bfd8f5; }
+
+/* ---------- Ranking ---------- */
+.ranking-acoes { margin-bottom: 1rem; }
+
+.tabela-rolagem { overflow-x: auto; }
+
+.tabela-ranking {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.tabela-ranking th,
+.tabela-ranking td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #e7edf2;
+  text-align: left;
+}
+
+.tabela-ranking th { background: var(--azul-escuro); color: #fff; }
+.tabela-ranking tr.eu td { background: #fff4d6; font-weight: bold; }
+
+.selo {
+  display: inline-block;
+  background: var(--sol);
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* ---------- Jogo ---------- */
+.area-jogo {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 1.1rem;
+  background: var(--lagoa-fundo);
+  color: #fff;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--raio) var(--raio) 0 0;
+  font-size: 0.95rem;
+}
+
+.multiplicador {
+  display: inline-block;
+  background: var(--sol);
+  color: var(--tinta);
+  border-radius: 999px;
+  padding: 0 0.45rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.botao-pausa {
+  margin-left: auto;
+  background: transparent;
+  color: #fff;
+  border: 1px solid var(--agua);
+  border-radius: 8px;
+  padding: 0.25rem 0.7rem;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.botao-pausa:disabled { opacity: 0.4; cursor: default; }
+.botao-pausa:not(:disabled):hover { background: var(--agua); }
+
+.saude {
+  background: #fff;
+  padding: 0.6rem 0.9rem;
+  border-left: 1px solid var(--borda);
+  border-right: 1px solid var(--borda);
+}
+.saude label { display: block; margin-bottom: 0.3rem; font-size: 0.95rem; }
+.saude small { display: block; margin-top: 0.3rem; color: var(--tinta-suave); font-size: 0.75rem; line-height: 1.3; }
+
+.barra-fundo {
+  height: 14px;
+  background: #dfe8ec;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.barra-nivel {
+  height: 100%;
+  width: 100%;
+  border-radius: 999px;
+  background: var(--mangue);
+  transition: width 0.25s, background 0.25s;
+}
+.barra-nivel[data-estado="alerta"]  { background: var(--sol-escuro); }
+.barra-nivel[data-estado="critica"] { background: var(--coral); }
+
+.aviso {
+  min-height: 3.2rem;
+  padding: 0.5rem 0.9rem;
+  background: #f4f9f8;
+  border: 1px solid var(--borda);
+  border-top: 0;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  color: var(--tinta);
+}
+.aviso.erro   { background: #fdeaea; color: #9b1b1b; }
+.aviso.bom    { background: #e7f9ee; color: #1f6f42; }
+.aviso.fato   { background: #edf6ff; color: #1d4b7a; }
+.aviso:empty::before { content: "Dica: os resíduos que escapam ficam boiando na lagoa."; color: var(--tinta-suave); }
+
+.moldura {
+  position: relative;
+  line-height: 0;
+  background: var(--lagoa-fundo);
+  border-radius: 0 0 var(--raio) var(--raio);
+  overflow: hidden;
+}
+
+#areaJogo {
+  display: block;
+  margin: 0 auto;
+  width: min(100%, 480px, calc((100vh - 300px) * 0.75));
+  min-width: 280px;
+  aspect-ratio: 3 / 4;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tela-sobreposta {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 1.2rem;
+  text-align: center;
+  line-height: 1.4;
+  color: #fff;
+  background: rgba(14, 59, 67, 0.9);
+}
+.tela-sobreposta[hidden] { display: none; }
+.tela-sobreposta h2 { margin-top: 0; font-size: 1.5rem; }
+.tela-sobreposta p { margin-bottom: 0.4rem; }
+.tela-sobreposta .botao { margin-top: 0.6rem; }
+
+.recorde { color: var(--sol); }
+.status-salvo { font-size: 0.9rem; color: var(--agua-clara); }
+.status-salvo.erro { color: #ffb3ad; }
+.dica-final {
+  max-width: 340px;
+  margin-top: 0.4rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+.acoes-fim { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; margin-top: 0.4rem; }
+
+.controles-toque {
+  display: none;
+  gap: 1rem;
+  margin-top: 0.8rem;
+}
+.controles-toque button {
+  flex: 1;
+  padding: 1rem;
+  font-size: 1.6rem;
+  color: #fff;
+  background: var(--agua);
+  border: 0;
+  border-radius: var(--raio);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.controles-toque button:active { background: var(--lagoa-fundo); }
+
+@media (pointer: coarse), (max-width: 700px) {
+  .controles-toque { display: flex; }
+}
+
+@media (max-width: 520px) {
+  h1 { font-size: 1.5rem; }
+  .cartao { padding: 1.1rem; }
+  .conteudo { padding: 1rem 0.6rem 1.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barra-nivel, .botao { transition: none; }
+}

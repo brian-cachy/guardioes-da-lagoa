@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block titulo %}Cadastro{% endblock %}
+
+{% block conteudo %}
+<section class="cartao form-card">
+  <h1>Cadastro</h1>
+
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="campo">
+      <label for="nome">Nome</label>
+      <input id="nome" name="nome" type="text" maxlength="60" autocomplete="name" required autofocus>
+    </div>
+
+    <div class="campo">
+      <label for="usuario">Usuário</label>
+      <input id="usuario" name="usuario" type="text" minlength="3" maxlength="20"
+             pattern="[A-Za-z0-9_]+" autocomplete="username" aria-describedby="dica-usuario" required>
+      <small id="dica-usuario">3 a 20 caracteres: letras, números ou _.</small>
+    </div>
+
+    <div class="campo">
+      <label for="senha">Senha</label>
+      <input id="senha" name="senha" type="password" minlength="6"
+             autocomplete="new-password" aria-describedby="dica-senha" required>
+      <small id="dica-senha">Mínimo de 6 caracteres.</small>
+    </div>
+
+    <div class="campo">
+      <label for="confirmar_senha">Confirmar senha</label>
+      <input id="confirmar_senha" name="confirmar_senha" type="password"
+             autocomplete="new-password" required>
+    </div>
+
+    <button class="botao" type="submit">Cadastrar</button>
+  </form>
+
+  <p class="texto-link">
+    Já tem conta?
+    <a href="{{ url_for('login') }}">Faça login</a>
+  </p>
+</section>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block conteudo %}
+<section class="cartao">
+  <h1>Guardiões da Lagoa de Maricá</h1>
+  <p>
+    O descarte inadequado de resíduos pode prejudicar lagoas, animais,
+    vegetação e as comunidades que vivem ao redor. Neste jogo, você ajuda
+    a impedir que o lixo chegue à água.
+  </p>
+
+  <h2>Como jogar</h2>
+  <ul class="lista-regras">
+    <li><strong>Computador:</strong> use as setas ← → ou as teclas A e D. Pause com P.</li>
+    <li><strong>Celular:</strong> arraste o dedo sobre o jogo ou use os botões ◀ ▶.</li>
+    <li>Recolha os resíduos com o barco antes que toquem a água.</li>
+    <li>Cada resíduo que cai na lagoa reduz a saúde ambiental do jogo, e a água vai ficando turva.</li>
+    <li><strong>Não recolha os animais!</strong> Peixes e tartarugas que pulam da água devem voltar para ela. Se você pegar um, perde saúde e a sequência.</li>
+    <li>Recolher vários resíduos seguidos aumenta o multiplicador de pontos e recupera um pouco de saúde.</li>
+    <li>Quando a saúde chegar a zero, a partida termina.</li>
+  </ul>
+
+  {% if session.get("user_id") %}
+    <a class="botao" href="{{ url_for('jogo') }}">▶ Continuar para o jogo</a>
+  {% else %}
+    <a class="botao" href="{{ url_for('login') }}">▶ Entrar para jogar</a>
+  {% endif %}
+</section>
+{% endblock %}
