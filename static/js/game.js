@@ -295,14 +295,22 @@
     if (fauna) {
       var tipoF = escolher(FAUNA);
       var altura = aleatorio(200, 340);
-      // Pulo no sentido oposto ao jogador para evitar cair na cesta
-      var direcaoFuga = estado.barcoX < CONFIG.LARGURA / 2 ? 1 : -1;
+      var meio = CONFIG.LARGURA / 2;
+      // Nasce no lado oposto ao jogador e longe da cesta
+      var xPeixe, direcaoFuga;
+      if (estado.barcoX < meio) {
+        xPeixe = aleatorio(meio + 30, CONFIG.LARGURA - 40); // jogador na esquerda → peixe na direita
+        direcaoFuga = 1;
+      } else {
+        xPeixe = aleatorio(40, meio - 30);                  // jogador na direita → peixe na esquerda
+        direcaoFuga = -1;
+      }
       return {
         fauna: true,
         tipo: tipoF,
-        x: aleatorio(50, CONFIG.LARGURA - 50),
+        x: xPeixe,
         y: CONFIG.NIVEL_AGUA,
-        vx: direcaoFuga * aleatorio(30, 70),
+        vx: direcaoFuga * aleatorio(40, 80),
         vy: -Math.sqrt(2 * CONFIG.GRAVIDADE_FAUNA * altura),
         raio: 18,
         rot: 0,
@@ -678,35 +686,48 @@
     if (!estado.rodando) { return; }
     ctx.save();
 
-    // Fundo semi-transparente
-    ctx.fillStyle = "rgba(10, 45, 55, 0.62)";
-    retanguloCanto(8, 8, 148, 58, 8);
-    ctx.fill();
+    var W = CONFIG.LARGURA;
+    var altHud = 40;
 
-    // Borda sutil
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+    // Faixa semi-transparente no topo do canvas
+    ctx.fillStyle = "rgba(10, 45, 55, 0.72)";
+    ctx.fillRect(0, 0, W, altHud);
+
+    // Linha divisória base
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.18)";
     ctx.lineWidth = 1;
-    retanguloCanto(8, 8, 148, 58, 8);
+    ctx.beginPath();
+    ctx.moveTo(0, altHud);
+    ctx.lineTo(W, altHud);
     ctx.stroke();
 
-    ctx.textAlign = "left";
+    // Separador central
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.22)";
+    ctx.beginPath();
+    ctx.moveTo(W / 2, 8);
+    ctx.lineTo(W / 2, altHud - 8);
+    ctx.stroke();
+
     ctx.textBaseline = "middle";
+    var cy = altHud / 2;
 
-    // Pontos
+    // Pontos (metade esquerda)
+    ctx.textAlign = "left";
     ctx.fillStyle = "#f2b441";
-    ctx.font = "bold 13px 'Trebuchet MS', sans-serif";
-    ctx.fillText("PONTOS", 20, 27);
+    ctx.font = "bold 11px 'Trebuchet MS', sans-serif";
+    ctx.fillText("PONTOS", 14, cy - 7);
     ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 18px 'Trebuchet MS', sans-serif";
-    ctx.fillText(estado.pontos, 80, 27);
+    ctx.font = "bold 16px 'Trebuchet MS', sans-serif";
+    ctx.fillText(estado.pontos, 14, cy + 9);
 
-    // Nível
+    // Nível (metade direita)
+    ctx.textAlign = "left";
     ctx.fillStyle = "#7fd8b0";
-    ctx.font = "bold 13px 'Trebuchet MS', sans-serif";
-    ctx.fillText("NÍVEL", 20, 51);
+    ctx.font = "bold 11px 'Trebuchet MS', sans-serif";
+    ctx.fillText("NÍVEL", W / 2 + 14, cy - 7);
     ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 18px 'Trebuchet MS', sans-serif";
-    ctx.fillText(estado.nivel, 80, 51);
+    ctx.font = "bold 16px 'Trebuchet MS', sans-serif";
+    ctx.fillText(estado.nivel, W / 2 + 14, cy + 9);
 
     ctx.restore();
   }
