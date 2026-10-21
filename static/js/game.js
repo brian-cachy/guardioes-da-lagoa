@@ -295,12 +295,14 @@
     if (fauna) {
       var tipoF = escolher(FAUNA);
       var altura = aleatorio(200, 340);
+      // Pulo no sentido oposto ao jogador para evitar cair na cesta
+      var direcaoFuga = estado.barcoX < CONFIG.LARGURA / 2 ? 1 : -1;
       return {
         fauna: true,
         tipo: tipoF,
         x: aleatorio(50, CONFIG.LARGURA - 50),
         y: CONFIG.NIVEL_AGUA,
-        vx: aleatorio(-40, 40),
+        vx: direcaoFuga * aleatorio(30, 70),
         vy: -Math.sqrt(2 * CONFIG.GRAVIDADE_FAUNA * altura),
         raio: 18,
         rot: 0,
