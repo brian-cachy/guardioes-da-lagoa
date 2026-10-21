@@ -4,6 +4,8 @@ Projeto de serious game educativo em Flask + JavaScript Canvas.
 Você pilota um barco, recolhe o lixo antes que caia na lagoa e deixa os animais em paz.
 
 ## Como rodar
+Link para acesso via navegador ou mobile
+https://guardioes-da-lagoa.onrender.com/
 
 1. Crie e ative o ambiente virtual
    ```bash
