@@ -122,10 +122,7 @@
     botaoPausa: $("botaoPausa"),
     botaoEsquerda: $("botaoEsquerda"),
     botaoDireita: $("botaoDireita"),
-    botaoCorrer: $("botaoCorrer"),
-    capa: $("capa"),
-    botaoCapa: $("botaoCapa"),
-    areaJogo: document.querySelector(".area-jogo")
+    botaoCorrer: $("botaoCorrer")
   };
 
   var sessao = window.GAME_SESSION || {};
@@ -297,21 +294,13 @@
       .catch(function () { return false; });
   }
 
-  // A capa só aparece uma vez por carregamento: some quando a partida começa
-  function fecharCapa() {
-    if (el.areaJogo) { el.areaJogo.removeAttribute("inert"); }
-    if (el.capa) { el.capa.hidden = true; }
-  }
-
   function iniciarPartida() {
     el.botaoComecar.disabled = true;
     el.botaoReiniciar.disabled = true;
-    if (el.botaoCapa) { el.botaoCapa.disabled = true; }
 
     pedirInicioNoServidor().then(function (ok) {
       el.botaoComecar.disabled = false;
       el.botaoReiniciar.disabled = false;
-      fecharCapa();
 
       resetar();
       el.telaInicio.hidden = true;
@@ -1130,10 +1119,6 @@
   segurar(el.botaoCorrer, "correndo");
 
   el.botaoComecar.addEventListener("click", iniciarPartida);
-  if (el.botaoCapa) {
-    el.botaoCapa.addEventListener("click", iniciarPartida);
-    el.botaoCapa.focus();
-  }
   el.botaoReiniciar.addEventListener("click", iniciarPartida);
   el.botaoPausa.addEventListener("click", alternarPausa);
 

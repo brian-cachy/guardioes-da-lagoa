@@ -5,17 +5,7 @@
 {% block titulo %}Jogar - Guardiões da Lagoa{% endblock %}
 
 {% block conteudo %}
-{# Capa oficial: aparece antes da partida e some ao tocar no play #}
-<div id="capa" class="capa" role="dialog" aria-modal="true" aria-label="Guardiões da Lagoa: toque no botão para começar">
-  <div class="capa-fundo" style="background-image: url('{{ url_for('static', filename='img/capa-guardioes.jpg') }}')" aria-hidden="true"></div>
-  <div class="capa-arte">
-    <img src="{{ url_for('static', filename='img/capa-guardioes.jpg') }}" width="1600" height="846"
-         alt="Guardiões da Lagoa" decoding="async" fetchpriority="high">
-    <button id="botaoCapa" class="capa-play" type="button" aria-label="Começar o jogo"></button>
-  </div>
-</div>
-
-<section class="area-jogo" inert>
+<section class="area-jogo">
   <div class="hud" aria-live="off">
     <div>Pontos: <strong id="hudPontos">0</strong></div>
     <div>Nível: <strong id="hudNivel">1</strong> <span id="hudBonusNivel" class="selo-bonus" title="Bônus de pontos deste nível" hidden></span></div>
