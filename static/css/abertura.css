@@ -1,0 +1,203 @@
+/* Abertura do jogo (página inicial "/"): fundo vetorial da lagoa, logotipo e botão play.
+ * Visual portado do protótipo guardi_es_da_lagoa_interface.html, sem Tailwind. */
+
+.abertura {
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: #ebd8c7;
+  font-family: "Fredoka", "Lilita One", "Trebuchet MS", sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.abertura-fundo-caixa {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.abertura-fundo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.abertura-conteudo {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 56rem;
+  padding: 0 1rem;
+}
+
+.abertura-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 2rem;
+  animation: flutuar 4s ease-in-out infinite;
+}
+
+@keyframes flutuar {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.01); }
+}
+
+/* "GUARDIÕES" curvado */
+.titulo-curvo {
+  width: 100%;
+  max-width: 750px;
+  height: auto;
+  overflow: visible;
+}
+
+.titulo-curvo text {
+  font-family: "Lilita One", "Fredoka", cursive;
+  font-size: 82px;
+  letter-spacing: 3px;
+  fill: #32d9df;
+  stroke: #0d3251;
+  stroke-width: 14px;
+  paint-order: stroke fill;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: drop-shadow(0 8px 0 #082136);
+}
+
+/* "DA" e "LAGOA": letra turquesa com contorno azul duplo e relevo */
+.titulo-linhas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+  margin-top: -1.5rem;
+}
+
+.texto-cartoon {
+  color: #38e1e7;
+  font-weight: 700;
+  text-shadow:
+    -3px -3px 0 #0f3454, 3px -3px 0 #0f3454,
+    -3px 3px 0 #0f3454, 3px 3px 0 #0f3454,
+    -6px 0 0 #0f3454, 6px 0 0 #0f3454,
+    0 -6px 0 #0f3454, 0 6px 0 #0f3454,
+    0 8px 0 #0a2339,
+    0 12px 15px rgba(0, 0, 0, 0.25);
+}
+
+.texto-da {
+  font-size: 2.25rem;
+  letter-spacing: 0.05em;
+  margin: 0.25rem 0;
+}
+
+.texto-lagoa {
+  font-size: 3.75rem;
+  letter-spacing: 0.1em;
+}
+
+@media (min-width: 640px) {
+  .titulo-linhas { margin-top: -2.5rem; }
+  .texto-da { font-size: 3.75rem; }
+  .texto-lagoa { font-size: 6rem; }
+}
+
+@media (min-width: 768px) {
+  .texto-da { font-size: 4.5rem; }
+  .texto-lagoa { font-size: 8rem; }
+}
+
+/* Botão play (link para o próximo passo: login ou instruções) */
+.botao-play {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 6rem;
+  height: 6rem;
+  margin-top: 0.5rem;
+  border: 7px solid #0f3454;
+  border-radius: 50%;
+  background: #ebd8c7;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.18), 0 8px 10px -6px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s, background 0.3s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.botao-play:hover {
+  background: #f5e8da;
+  transform: scale(1.12);
+  filter: drop-shadow(0 10px 20px rgba(13, 50, 81, 0.3));
+}
+
+.botao-play:active { transform: scale(0.96); }
+
+.botao-play:focus-visible {
+  outline: 4px solid #32d9df;
+  outline-offset: 4px;
+}
+
+.botao-play-icone {
+  width: 0;
+  height: 0;
+  margin-left: 0.5rem;
+  border-top: 18px solid transparent;
+  border-bottom: 18px solid transparent;
+  border-left: 32px solid #0f3454;
+  transition: transform 0.3s;
+}
+
+.botao-play:hover .botao-play-icone { transform: scale(1.1); }
+
+@media (min-width: 640px) {
+  .botao-play { width: 7rem; height: 7rem; }
+}
+
+/* Celular em pé: gira a arte 90° para as ondas ocuparem os cantos da tela
+ * (sem isso, o corte central mostraria só areia). */
+@media (max-aspect-ratio: 1 / 1) {
+  .abertura-fundo {
+    inset: auto;
+    top: 50%;
+    left: 50%;
+    width: max(100vh, 160vw);
+    width: max(100dvh, 160vw);
+    height: auto;
+    aspect-ratio: 1440 / 900;
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+}
+
+/* Celular deitado / telas baixas: encolhe para caber sem cortar */
+@media (max-height: 600px) {
+  .abertura-logo { margin-bottom: 0.8rem; }
+  .titulo-curvo { max-width: 440px; }
+  .titulo-linhas { margin-top: -0.8rem; }
+  .texto-da { font-size: 2rem; }
+  .texto-lagoa { font-size: 3.6rem; }
+  .botao-play { width: 4.5rem; height: 4.5rem; border-width: 5px; }
+  .botao-play-icone { border-top-width: 12px; border-bottom-width: 12px; border-left-width: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abertura-logo { animation: none; }
+  .botao-play, .botao-play-icone { transition: none; }
+  .botao-play:hover, .botao-play:active { transform: none; }
+}

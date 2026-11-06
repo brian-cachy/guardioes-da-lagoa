@@ -59,7 +59,7 @@ Em Maricá, as lagoas integram a paisagem, a economia local e a rotina da popula
 ### Fluxo do Jogador
 
 ```text
-Página Inicial ➔ Cadastro / Login ➔ Jogo ➔ Fim de Partida (Pontos + Dica) ➔ Ranking
+Abertura (play) ➔ Cadastro / Login ➔ Instruções ➔ Jogo ➔ Fim de Partida (Pontos + Dica) ➔ Ranking
 ```
 
 ### Controles
@@ -110,13 +110,15 @@ guardioes-da-lagoa/
 ├── requirements.txt      # Dependências Python (Flask)
 ├── templates/            # Páginas HTML (Jinja2)
 │   ├── base.html         #   Layout base
-│   ├── index.html        #   Página inicial e instruções
+│   ├── abertura.html     #   Abertura do jogo (página inicial "/", botão play)
+│   ├── instrucoes.html   #   Como jogar (aparece depois do login, antes da partida)
 │   ├── cadastro.html     #   Criação de conta
 │   ├── login.html        #   Autenticação
 │   ├── jogo.html         #   Tela da partida (Canvas)
 │   └── ranking.html      #   Classificação geral
 ├── static/
 │   ├── css/style.css     # Estilos responsivos
+│   ├── css/abertura.css  # Estilos da abertura (fundo vetorial, logotipo e play)
 │   ├── js/game.js        # Lógica do jogo e renderização (Canvas 2D)
 │   └── img/              # Assets de imagem
 ├── instance/             # Banco SQLite e chave secreta locais (ignorado no Git)

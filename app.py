@@ -139,7 +139,15 @@ def registrar_falha_login(ip):
 # ---------------------------------------------------------------------------
 @app.route("/")
 def index():
-    return render_template("index.html")
+    """Abertura do jogo: o play leva ao login (ou às instruções, se já logado)."""
+    return render_template("abertura.html")
+
+
+@app.route("/instrucoes")
+@login_obrigatorio
+def instrucoes():
+    """Como jogar: aparece depois do login e antes da partida."""
+    return render_template("instrucoes.html")
 
 
 @app.route("/cadastro", methods=["GET", "POST"])
@@ -212,7 +220,7 @@ def login():
         session["user_usuario"] = user["usuario"]
 
         flash("Login realizado com sucesso!", "success")
-        return redirect(url_for("jogo"))
+        return redirect(url_for("instrucoes"))
 
     return render_template("login.html")
 
