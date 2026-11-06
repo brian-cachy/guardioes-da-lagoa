@@ -8,10 +8,14 @@
 <section class="area-jogo">
   <div class="hud" aria-live="off">
     <div>Pontos: <strong id="hudPontos">0</strong></div>
-    <div>Nível: <strong id="hudNivel">1</strong></div>
+    <div>Nível: <strong id="hudNivel">1</strong> <span id="hudBonusNivel" class="selo-bonus" title="Bônus de pontos deste nível" hidden></span></div>
     <div>Tempo: <strong id="hudTempo">0</strong>s</div>
     <div>Sequência: <strong id="hudSequencia">0</strong> <span id="hudMultiplicador" class="multiplicador">x1</span></div>
+    <div class="energia" data-estado="pronta" title="Segure Shift (ou o botão Correr) para acelerar o barco">
+      ⚡ <span class="barra-fundo mini"><span id="barraEnergia" class="barra-energia"></span></span>
+    </div>
     <button id="botaoPausa" class="botao-pausa" type="button" disabled>⏸ Pausar</button>
+    <div id="hudEspecial" class="selo-especial" hidden></div>
   </div>
 
   <div class="saude">
@@ -57,6 +61,7 @@
 
   <div class="controles-toque">
     <button id="botaoEsquerda" type="button" aria-label="Mover para a esquerda">◀</button>
+    <button id="botaoCorrer" class="botao-correr" type="button" aria-label="Segurar para correr">⚡ Correr</button>
     <button id="botaoDireita" type="button" aria-label="Mover para a direita">▶</button>
   </div>
 </section>

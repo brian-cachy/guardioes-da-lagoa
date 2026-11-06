@@ -14,7 +14,34 @@
     NIVEL_AGUA: 560,          // y onde começa a água
     BARCO_LARGURA: 96,
     BARCO_VEL: 440,           // px/s com teclado
-    PONTOS_POR_NIVEL: 200,
+    PONTOS_POR_NIVEL: 200,    // pontos para sair do nível 1 (bate com app.py)
+    AUMENTO_PASSO_NIVEL: 50,  // cada nível seguinte pede 50 pontos a mais (bate com app.py)
+
+    // Multiplicador por sequência: [acertos seguidos, multiplicador], do maior para o menor
+    MULT_SEQUENCIA: [[40, 4], [20, 3], [10, 2], [5, 1.5]],
+
+    // Bônus de pontos por nível: +25% a cada 5 níveis, até x2
+    BONUS_NIVEL_A_CADA: 5,
+    BONUS_NIVEL_PASSO: 0.25,
+    BONUS_NIVEL_MAX: 2,
+
+    // Barco: +3% de velocidade por nível (até +30%) e corrida com energia
+    BARCO_VEL_BONUS_NIVEL: 0.03,
+    BARCO_VEL_BONUS_MAX: 0.3,
+    CORRIDA_MULT: 1.5,
+    ENERGIA_MAX: 100,
+    ENERGIA_GASTO: 45,        // por segundo correndo (~2,2 s de corrida)
+    ENERGIA_RECARGA: 22,      // por segundo (~4,5 s para encher)
+    ENERGIA_RETOMADA: 30,     // depois de esgotar, só volta a correr com 30
+
+    // Rodadas especiais: a cada 5 níveis, duram 20 s
+    ESPECIAL_A_CADA: 5,
+    ESPECIAL_DURACAO: 20,
+    ESPECIAL_BONUS: 1.5,      // multiplica o valor dos resíduos durante a rodada
+    PERFEITA_BONUS: 100,      // bônus fixo por rodada sem erros (não é multiplicado)
+    PERFEITA_CRESCE: 25,      // +25 a cada rodada já feita
+    PERFEITA_MAX: 300,
+
     SAUDE_INICIAL: 100,
     DANO_PADRAO: 10,
     DANO_FAUNA: 12,
@@ -46,6 +73,14 @@
     { emoji: "🐢", nome: "tartaruga" }
   ];
 
+  // Rodadas especiais, alternadas na ordem (1ª chuva, 2ª cardume, 3ª chuva...)
+  var ESPECIAIS = [
+    { id: "chuva", nome: "Chuva forte!", spawn: 0.65, vel: 1.15, fauna: 0,
+      dica: "Chove lixo na lagoa! Recolha tudo: cada resíduo vale mais.", cor: "rgba(20, 50, 110, 0.25)" },
+    { id: "cardume", nome: "Cardume na lagoa!", spawn: 0.9, vel: 1, fauna: 0.4,
+      dica: "Muitos animais pulando! Deixe-os voltar à água e recolha só o lixo.", cor: "rgba(31, 138, 147, 0.2)" }
+  ];
+
   var DICAS_FINAIS = [
     "Resíduos jogados na rua podem ser levados pela chuva até rios e lagoas.",
     "Separar o lixo reciclável ajuda a reduzir o que chega aos corpos d'água.",
@@ -69,6 +104,9 @@
     tempo: $("hudTempo"),
     sequencia: $("hudSequencia"),
     multiplicador: $("hudMultiplicador"),
+    bonusNivel: $("hudBonusNivel"),
+    especial: $("hudEspecial"),
+    barraEnergia: $("barraEnergia"),
     barraSaude: $("barraSaude"),
     textoSaude: $("textoSaude"),
     aviso: $("aviso"),
@@ -83,7 +121,8 @@
     botaoReiniciar: $("botaoReiniciar"),
     botaoPausa: $("botaoPausa"),
     botaoEsquerda: $("botaoEsquerda"),
-    botaoDireita: $("botaoDireita")
+    botaoDireita: $("botaoDireita"),
+    botaoCorrer: $("botaoCorrer")
   };
 
   var sessao = window.GAME_SESSION || {};
@@ -107,6 +146,14 @@
     alvoX: null,
     esq: false,
     dir: false,
+    correndo: false,      // botão/tecla de corrida pressionado
+    energia: CONFIG.ENERGIA_MAX,
+    exausto: false,       // energia esgotada: espera recarregar
+    especial: null,       // rodada especial em andamento
+    especiaisFeitas: 0,
+    especialPendente: false,
+    faixaEspecial: 0,     // quantas "faixas" de 5 níveis já foram alcançadas
+    banner: null,         // título grande na tela ao começar uma rodada
     vistos: {},
     relogio: 0,
     avisoTimer: 0,
@@ -124,12 +171,44 @@
   function escolher(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
   function mistura(a, b, t) { return Math.round(a + (b - a) * t); }
 
+  // Cada nível pede mais pontos que o anterior (200, 250, 300...). Como os
+  // bônus fazem os pontos crescerem, isso evita que o nível dispare.
+  // A mesma conta existe em app.py (nivel_por_pontos).
   function nivelPorPontos(pontos) {
-    return 1 + Math.floor(pontos / CONFIG.PONTOS_POR_NIVEL);
+    var nivel = 1;
+    var passo = CONFIG.PONTOS_POR_NIVEL;
+    var resto = pontos;
+    while (resto >= passo) {
+      resto -= passo;
+      nivel += 1;
+      passo += CONFIG.AUMENTO_PASSO_NIVEL;
+    }
+    return nivel;
+  }
+
+  function multiplicadorPara(sequencia) {
+    for (var i = 0; i < CONFIG.MULT_SEQUENCIA.length; i++) {
+      if (sequencia >= CONFIG.MULT_SEQUENCIA[i][0]) { return CONFIG.MULT_SEQUENCIA[i][1]; }
+    }
+    return 1;
   }
 
   function multiplicadorAtual() {
-    return Math.min(3, 1 + Math.floor(estado.sequencia / 5) * 0.5);
+    return multiplicadorPara(estado.sequencia);
+  }
+
+  function bonusNivelPara(nivel) {
+    var b = 1 + Math.floor((nivel - 1) / CONFIG.BONUS_NIVEL_A_CADA) * CONFIG.BONUS_NIVEL_PASSO;
+    return Math.min(CONFIG.BONUS_NIVEL_MAX, b);
+  }
+
+  function bonusEspecialAtual() {
+    return estado.especial ? CONFIG.ESPECIAL_BONUS : 1;
+  }
+
+  function velocidadeBase() {
+    var bonus = Math.min(CONFIG.BARCO_VEL_BONUS_MAX, (estado.nivel - 1) * CONFIG.BARCO_VEL_BONUS_NIVEL);
+    return CONFIG.BARCO_VEL * (1 + bonus);
   }
 
   function rotuloSaude(s) {
@@ -187,6 +266,16 @@
     estado.barcoX = CONFIG.LARGURA / 2;
     estado.alvoX = null;
     estado.vistos = {};
+    estado.esq = false;
+    estado.dir = false;
+    estado.correndo = false;
+    estado.energia = CONFIG.ENERGIA_MAX;
+    estado.exausto = false;
+    estado.especial = null;
+    estado.especiaisFeitas = 0;
+    estado.especialPendente = false;
+    estado.faixaEspecial = 0;
+    estado.banner = null;
     estado.pausado = false;
     estado.nivelUpTimer = 0;
     estado.nivelUpNumero = 0;
@@ -234,6 +323,7 @@
     if (estado.pausado) {
       estado.esq = false;
       estado.dir = false;
+      estado.correndo = false;
     }
   }
 
@@ -290,7 +380,9 @@
   // Itens
   // ------------------------------------------------------------------
   function criarItem() {
-    var fauna = estado.nivel >= 2 && Math.random() < CONFIG.CHANCE_FAUNA;
+    var chanceFauna = estado.especial ? estado.especial.def.fauna
+      : (estado.nivel >= 2 ? CONFIG.CHANCE_FAUNA : 0);
+    var fauna = Math.random() < chanceFauna;
 
     if (fauna) {
       var tipoF = escolher(FAUNA);
@@ -319,7 +411,8 @@
     }
 
     var tipo = escolher(RESIDUOS);
-    var velocidade = Math.min(330, 95 + estado.nivel * 20) * aleatorio(0.9, 1.15);
+    var velocidade = Math.min(330, 95 + estado.nivel * 20) * aleatorio(0.9, 1.15) *
+      (estado.especial ? estado.especial.def.vel : 1);
     return {
       fauna: false,
       tipo: tipo,
@@ -335,7 +428,8 @@
   }
 
   function intervaloSpawn() {
-    return Math.max(CONFIG.SPAWN_MINIMO, CONFIG.SPAWN_INICIAL - 0.08 * (estado.nivel - 1));
+    var base = Math.max(CONFIG.SPAWN_MINIMO, CONFIG.SPAWN_INICIAL - 0.08 * (estado.nivel - 1));
+    return base * (estado.especial ? estado.especial.def.spawn : 1);
   }
 
   // ------------------------------------------------------------------
@@ -352,22 +446,73 @@
   // ------------------------------------------------------------------
   // Regras
   // ------------------------------------------------------------------
+  // Rodadas especiais: começam ao cruzar um múltiplo de 5 níveis. Se o jogador
+  // cruzar outro enquanto uma rodada está ativa, ela fica pendente (só uma).
+  function iniciarEspecial() {
+    var def = ESPECIAIS[estado.especiaisFeitas % ESPECIAIS.length];
+    estado.especial = { def: def, restante: CONFIG.ESPECIAL_DURACAO, erros: 0 };
+    estado.especialPendente = false;
+    estado.banner = { texto: def.nome, vida: 2.6, total: 2.6 };
+    mostrarAviso("Rodada especial: " + def.nome + " " + def.dica, "bom");
+  }
+
+  function terminarEspecial() {
+    var esp = estado.especial;
+    estado.especial = null;
+    estado.especiaisFeitas += 1;
+
+    if (esp.erros === 0) {
+      var bonus = Math.min(CONFIG.PERFEITA_MAX,
+        CONFIG.PERFEITA_BONUS + CONFIG.PERFEITA_CRESCE * (estado.especiaisFeitas - 1));
+      estado.pontos += bonus;
+      efeitoTexto(CONFIG.LARGURA / 2, CONFIG.ALTURA / 2, "Rodada perfeita! +" + bonus, "#f2b441");
+      mostrarAviso("Rodada perfeita! Bônus de " + bonus + " pontos.", "bom");
+    } else {
+      mostrarAviso("Rodada especial concluída. Sem erros na próxima, o bônus é seu!", "fato");
+    }
+
+    // O bônus pode ter feito o jogador subir de nível
+    atualizarNivel();
+    if (estado.especialPendente && !estado.especial) { iniciarEspecial(); }
+  }
+
   function atualizarNivel() {
+    var antigo = estado.nivel;
     var novo = nivelPorPontos(estado.pontos);
-    if (novo > estado.nivel) {
+    if (novo > antigo) {
       estado.nivel = novo;
       estado.nivelUpTimer = 2.5;
       estado.nivelUpNumero = novo;
-      mostrarAviso("Nível " + novo + "! Os resíduos estão caindo mais rápido.", "bom");
+      var bonus = bonusNivelPara(novo);
+      if (bonus > bonusNivelPara(antigo)) {
+        mostrarAviso("Nível " + novo + "! Resíduos mais rápidos, mas cada acerto vale +" +
+          Math.round((bonus - 1) * 100) + "%.", "bom");
+      } else {
+        mostrarAviso("Nível " + novo + "! Os resíduos estão caindo mais rápido.", "bom");
+      }
+
+      var faixa = Math.floor(novo / CONFIG.ESPECIAL_A_CADA);
+      if (faixa > estado.faixaEspecial) {
+        estado.faixaEspecial = faixa;
+        if (estado.especial) { estado.especialPendente = true; } else { iniciarEspecial(); }
+      }
     }
   }
 
   function recolheuResiduo(item) {
     estado.sequencia += 1;
     var mult = multiplicadorAtual();
-    var ganho = Math.round(item.tipo.pontos * mult);
+    // Fórmula única: cada bônus entra uma só vez
+    var ganho = Math.round(item.tipo.pontos * mult * bonusNivelPara(estado.nivel) * bonusEspecialAtual());
     estado.pontos += ganho;
-    efeitoTexto(item.x, CONFIG.NIVEL_AGUA - 60, "+" + ganho, "#ffffff");
+    efeitoTexto(item.x, CONFIG.NIVEL_AGUA - 60, "+" + ganho, ganho > item.tipo.pontos ? "#f2b441" : "#ffffff");
+
+    if (mult > multiplicadorPara(estado.sequencia - 1)) {
+      efeitoTexto(estado.barcoX, CONFIG.NIVEL_AGUA - 100, "Sequência x" + mult + "!", "#f2b441");
+      el.multiplicador.classList.remove("pulso");
+      void el.multiplicador.offsetWidth;   // reinicia a animação
+      el.multiplicador.classList.add("pulso");
+    }
 
     if (estado.sequencia % 10 === 0) {
       estado.saude = Math.min(100, estado.saude + CONFIG.CURA_SEQUENCIA);
@@ -382,6 +527,7 @@
 
   function recolheuFauna(item) {
     estado.sequencia = 0;
+    if (estado.especial) { estado.especial.erros += 1; }
     estado.saude = Math.max(0, estado.saude - CONFIG.DANO_FAUNA);
     estado.pontos = Math.max(0, estado.pontos - 15);
     efeitoTexto(item.x, CONFIG.NIVEL_AGUA - 60, "-15", "#ffb3ad");
@@ -390,6 +536,7 @@
 
   function residuoCaiuNaAgua(item) {
     estado.sequencia = 0;
+    if (estado.especial) { estado.especial.erros += 1; }
     estado.saude = Math.max(0, estado.saude - item.tipo.dano);
     efeitoRespingo(item.x);
 
@@ -409,11 +556,34 @@
   function atualizar(dt) {
     estado.tempo += dt;
 
+    // Rodada especial: o tempo só corre com o jogo rodando (a pausa congela)
+    if (estado.especial) {
+      estado.especial.restante -= dt;
+      if (estado.especial.restante <= 0) { terminarEspecial(); }
+    }
+    if (estado.banner) {
+      estado.banner.vida -= dt;
+      if (estado.banner.vida <= 0) { estado.banner = null; }
+    }
+
     // Barco
     var meia = CONFIG.BARCO_LARGURA / 2;
-    if (estado.esq || estado.dir) {
+    var movendo = estado.esq || estado.dir;
+
+    // Energia da corrida: gasta correndo, recarrega nas outras horas
+    var corre = estado.correndo && !estado.exausto && movendo && estado.energia > 0;
+    if (corre) {
+      estado.energia -= CONFIG.ENERGIA_GASTO * dt;
+      if (estado.energia <= 0) { estado.energia = 0; estado.exausto = true; }
+    } else {
+      estado.energia = Math.min(CONFIG.ENERGIA_MAX, estado.energia + CONFIG.ENERGIA_RECARGA * dt);
+      if (estado.exausto && estado.energia >= CONFIG.ENERGIA_RETOMADA) { estado.exausto = false; }
+    }
+
+    if (movendo) {
       estado.alvoX = null;
-      estado.barcoX += ((estado.dir ? 1 : 0) - (estado.esq ? 1 : 0)) * CONFIG.BARCO_VEL * dt;
+      var vel = velocidadeBase() * (corre ? CONFIG.CORRIDA_MULT : 1);
+      estado.barcoX += ((estado.dir ? 1 : 0) - (estado.esq ? 1 : 0)) * vel * dt;
     } else if (estado.alvoX !== null) {
       estado.barcoX += (estado.alvoX - estado.barcoX) * Math.min(1, 14 * dt);
     }
@@ -499,6 +669,23 @@
     el.tempo.textContent = Math.floor(estado.tempo);
     el.sequencia.textContent = estado.sequencia;
     el.multiplicador.textContent = "x" + multiplicadorAtual();
+
+    var bn = bonusNivelPara(estado.nivel);
+    el.bonusNivel.hidden = bn <= 1;
+    el.bonusNivel.textContent = "+" + Math.round((bn - 1) * 100) + "%";
+
+    if (estado.especial) {
+      el.especial.hidden = false;
+      el.especial.textContent = estado.especial.def.nome + " " + Math.max(0, Math.ceil(estado.especial.restante)) + "s";
+    } else {
+      el.especial.hidden = true;
+    }
+
+    var en = Math.round(estado.energia);
+    el.barraEnergia.style.width = en + "%";
+    el.barraEnergia.parentNode.setAttribute("data-estado", estado.exausto ? "esgotada" : "pronta");
+    el.botaoCorrer.classList.toggle("indisponivel", estado.exausto);
+    el.botaoCorrer.classList.toggle("ativo", estado.correndo && !estado.exausto);
 
     var s = Math.round(estado.saude);
     el.barraSaude.style.width = s + "%";
@@ -768,6 +955,59 @@
     ctx.restore();
   }
 
+  // Rodada especial: tom sobre o cenário, chuva (na rodada de chuva) e barra de tempo
+  function desenharEspecialFundo() {
+    var esp = estado.especial;
+    if (!esp) { return; }
+    ctx.fillStyle = esp.def.cor;
+    ctx.fillRect(0, 0, CONFIG.LARGURA, CONFIG.ALTURA);
+
+    if (esp.def.id === "chuva") {
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.45)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (var i = 0; i < 45; i++) {
+        var x = (i * 97) % CONFIG.LARGURA;
+        var y = (i * 53 + estado.relogio * 520) % CONFIG.NIVEL_AGUA;
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - 4, y + 16);
+      }
+      ctx.stroke();
+    }
+  }
+
+  function textoContornado(texto, x, y, tamanho) {
+    // Mesmo visual do logotipo: letra turquesa com contorno azul-escuro
+    ctx.font = "bold " + tamanho + "px 'Trebuchet MS', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#14477a";
+    ctx.lineWidth = Math.max(4, tamanho / 5);
+    ctx.strokeText(texto, x, y);
+    ctx.fillStyle = "#3fd0d4";
+    ctx.fillText(texto, x, y);
+  }
+
+  function desenharEspecialTopo() {
+    var esp = estado.especial;
+    if (esp) {
+      var frac = limitar(esp.restante / CONFIG.ESPECIAL_DURACAO, 0, 1);
+      ctx.fillStyle = "rgba(20, 71, 122, 0.55)";
+      ctx.fillRect(0, 41, CONFIG.LARGURA, 6);
+      ctx.fillStyle = "#3fd0d4";
+      ctx.fillRect(0, 41, CONFIG.LARGURA * frac, 6);
+    }
+    if (estado.banner) {
+      var b = estado.banner;
+      var t = b.vida / b.total;
+      ctx.globalAlpha = limitar(Math.min(t * 3, (1 - t) * 6 + 0.2), 0, 1);
+      textoContornado(b.texto, CONFIG.LARGURA / 2, 170, 40);
+      textoContornado("Rodada especial", CONFIG.LARGURA / 2, 214, 20);
+      ctx.globalAlpha = 1;
+    }
+  }
+
   function desenharPausa() {
     ctx.fillStyle = "rgba(14, 59, 67, 0.65)";
     ctx.fillRect(0, 0, CONFIG.LARGURA, CONFIG.ALTURA);
@@ -783,12 +1023,14 @@
   function desenhar() {
     ctx.clearRect(0, 0, CONFIG.LARGURA, CONFIG.ALTURA);
     desenharCenario();
+    desenharEspecialFundo();
     desenharBoiando();
     desenharItens();
     desenharBarco();
     desenharEfeitos();
     desenharHUD();
     if (estado.nivelUpTimer > 0) { desenharNotificacaoNivel(); }
+    desenharEspecialTopo();
     if (estado.pausado) { desenharPausa(); }
   }
 
@@ -827,6 +1069,8 @@
     } else if (tecla === "ArrowRight" || tecla === "KeyD") {
       estado.dir = true;
       if (estado.rodando) { e.preventDefault(); }
+    } else if (tecla === "ShiftLeft" || tecla === "ShiftRight") {
+      estado.correndo = true;
     } else if ((tecla === "KeyP" || tecla === "Escape") && estado.rodando) {
       e.preventDefault();
       alternarPausa();
@@ -836,11 +1080,13 @@
   document.addEventListener("keyup", function (e) {
     if (e.code === "ArrowLeft" || e.code === "KeyA") { estado.esq = false; }
     if (e.code === "ArrowRight" || e.code === "KeyD") { estado.dir = false; }
+    if (e.code === "ShiftLeft" || e.code === "ShiftRight") { estado.correndo = false; }
   });
 
   window.addEventListener("blur", function () {
     estado.esq = false;
     estado.dir = false;
+    estado.correndo = false;
     if (estado.rodando && !estado.pausado) { alternarPausa(); }
   });
 
@@ -870,6 +1116,7 @@
   }
   segurar(el.botaoEsquerda, "esq");
   segurar(el.botaoDireita, "dir");
+  segurar(el.botaoCorrer, "correndo");
 
   el.botaoComecar.addEventListener("click", iniciarPartida);
   el.botaoReiniciar.addEventListener("click", iniciarPartida);

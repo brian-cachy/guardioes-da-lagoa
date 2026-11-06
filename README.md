@@ -50,8 +50,9 @@ Em Maricá, as lagoas integram a paisagem, a economia local e a rotina da popula
 * 🗑️ **Mecânica Principal:** Resíduos caem do topo da tela e o jogador move um barco para recolhê-los antes que atinjam a água.
 * 💧 **Feedback Visual:** Cada resíduo não coletado reduz a saúde da lagoa, tornando a água visivelmente turva.
 * 🐟 **Proteção à Fauna:** Peixes e tartarugas pulam da água e **não** devem ser recolhidos. Capturar um animal reduz a saúde e zera o combo.
-* ⚡ **Multiplicador e Cura:** Sequências de acertos aumentam o multiplicador (até x3) e regeneram a saúde da lagoa (a cada 10 acertos seguidos, recupera 5 de saúde).
-* 📈 **Progressão:** A cada 200 pontos o nível sobe e a velocidade aumenta.
+* ⚡ **Multiplicador e Cura:** Sequências de acertos aumentam o multiplicador (de x1 até x4) e regeneram a saúde da lagoa (a cada 10 acertos seguidos, recupera 5 de saúde).
+* 📈 **Progressão:** Cada nível pede mais pontos que o anterior (200, 250, 300...), a velocidade dos resíduos e do barco aumenta, e os acertos passam a valer mais a cada 5 níveis.
+* 🌧️ **Rodadas Especiais:** A cada 5 níveis acontece um desafio de 20 s (*Chuva forte* ou *Cardume na lagoa*) com identificação visual própria e bônus por rodada sem erros.
 * 📚 **Educação Ativa:** Ao interagir pela primeira vez com cada tipo de resíduo, o jogo exibe um fato educativo. Ao final da partida, exibe uma dica de consumo consciente.
 * 🏆 **Competição Saudável:** Sistema de cadastro, login e ranking para incentivar o engajamento entre turmas e alunos.
 
@@ -65,8 +66,10 @@ Página Inicial ➔ Cadastro / Login ➔ Jogo ➔ Fim de Partida (Pontos + Dica)
 
 | Dispositivo | Como jogar |
 | :--- | :--- |
-| **Computador** | Setas `←` `→` ou teclas `A` / `D`. Pausar com `P` ou `Esc`. |
-| **Celular** | Arrastar o dedo sobre a tela do jogo ou utilizar os botões `◀` `▶`. |
+| **Computador** | Setas `←` `→` ou teclas `A` / `D`. `Shift` para correr. Pausar com `P` ou `Esc`. |
+| **Celular** | Arrastar o dedo sobre a tela do jogo ou utilizar os botões `◀` `▶` e `⚡ Correr`. |
+
+> A corrida gasta energia (~2 s) e recarrega sozinha (~4,5 s); se esgotar, só volta quando a barra chegar a 30%. Arrastar com mouse/dedo não usa a corrida nem o aumento de velocidade por nível: o barco vai direto ao cursor.
 
 ### Regras de Pontuação
 
@@ -83,8 +86,11 @@ Além disso:
 
 - Resíduos que tocam a água reduzem a saúde da lagoa e deixam a água mais turva.
 - Peixes e tartarugas que pulam da água **não** devem ser recolhidos.
-- Sequências de acertos aumentam o multiplicador (até x3) e curam a lagoa.
-- A cada 200 pontos o nível sobe e o jogo acelera.
+- **Multiplicador por sequência** (zera ao deixar lixo cair ou pegar um animal; a cada 10 seguidos a lagoa se cura): 5 seguidos x1,5 · 10 x2 · 20 x3 · 40 x4.
+- Cada resíduo vale: `base × multiplicador × bônus de nível × bônus da rodada` (cada bônus entra uma só vez).
+- **Níveis:** o 1º pede 200 pontos e cada nível seguinte pede 50 a mais (200, 250, 300...). O jogo acelera a cada nível, e o barco também (+3% por nível, até +30%).
+- **Bônus de nível:** +25% nos pontos a cada 5 níveis (nível 6: +25%, 11: +50%... até x2).
+- **Rodadas especiais** (a cada 5 níveis, 20 s, com faixa turquesa na tela): *Chuva forte* (mais lixo, mais rápido, sem animais) e *Cardume na lagoa* (muitos animais pulando). Resíduos valem x1,5 e, sem erros, há bônus fixo de 100 pontos (+25 a cada rodada, até 300).
 
 ---
 
@@ -254,8 +260,8 @@ Em seguida, acesse pelo celular no endereço: `http://<IP-DO-SEU-COMPUTADOR>:500
 - **Validação Server-Side da Pontuação:**
   - A partida precisa ser explicitamente iniciada antes do envio da pontuação.
   - Validação do tempo de jogo (o tempo informado pelo cliente não pode superar o tempo real de sessão com margem superior a 3s).
-  - Teto máximo aceitável de taxa de pontos por segundo (~120 pts/s).
-  - O nível é recalculado exclusivamente pelo servidor (`1 + pontos // 200`).
+  - Teto máximo aceitável de taxa de pontos por segundo (~300 pts/s, já considerando multiplicadores e bônus).
+  - O nível é recalculado exclusivamente pelo servidor (`nivel_por_pontos` em `app.py`: 200 pontos para o nível 2, +50 a cada nível seguinte).
 
 ### Limitações Conhecidas
 
