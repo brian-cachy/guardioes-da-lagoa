@@ -267,6 +267,47 @@ p { margin: 0 0 0.9rem; }
   font-weight: bold;
 }
 
+.multiplicador.pulso { animation: pulso 0.5s ease-out; }
+@keyframes pulso {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.45); }
+  100% { transform: scale(1); }
+}
+
+.selo-bonus {
+  display: inline-block;
+  background: var(--mangue);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0 0.4rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+.selo-bonus[hidden], .selo-especial[hidden] { display: none; }
+
+/* Faixa da rodada especial: turquesa com contorno azul, como o logotipo */
+.selo-especial {
+  flex-basis: 100%;
+  text-align: center;
+  background: #3fd0d4;
+  color: #14477a;
+  border-radius: 999px;
+  padding: 0.1rem 0.6rem;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.energia { display: flex; align-items: center; gap: 0.3rem; }
+.barra-fundo.mini { display: inline-block; width: 64px; height: 10px; }
+.barra-energia {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--sol);
+  border-radius: 999px;
+}
+.energia[data-estado="esgotada"] .barra-energia { background: var(--coral); }
+
 .botao-pausa {
   margin-left: auto;
   background: transparent;
@@ -391,6 +432,9 @@ p { margin: 0 0 0.9rem; }
   -webkit-user-select: none;
 }
 .controles-toque button:active { background: var(--lagoa-fundo); }
+.controles-toque .botao-correr { flex: 1.4; font-size: 1.05rem; background: var(--sol-escuro); }
+.controles-toque .botao-correr.ativo { background: var(--sol); color: var(--tinta); }
+.controles-toque .botao-correr.indisponivel { opacity: 0.45; }
 
 @media (pointer: coarse), (max-width: 700px) {
   .controles-toque { display: flex; }
@@ -404,6 +448,7 @@ p { margin: 0 0 0.9rem; }
 
 @media (prefers-reduced-motion: reduce) {
   .barra-nivel, .botao { transition: none; }
+  .multiplicador.pulso { animation: none; }
 }
 
 /* ---------- Página de jogo: sem scroll, cabe na tela ---------- */

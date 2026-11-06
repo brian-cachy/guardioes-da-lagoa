@@ -22,9 +22,12 @@ from database import (
 # ---------------------------------------------------------------------------
 # Regras do jogo (devem bater com static/js/game.js)
 # ---------------------------------------------------------------------------
-PONTOS_POR_NIVEL = 200       # nível = 1 + pontos // 200
-MAX_PONTOS_POR_SEGUNDO = 120  # teto folgado do que é possível no jogo
-MARGEM_PONTOS = 60
+PONTOS_POR_NIVEL = 200       # pontos para sair do nível 1
+AUMENTO_PASSO_NIVEL = 50     # cada nível seguinte pede 50 pontos a mais (200, 250, 300...)
+# Teto folgado do que é possível: pior caso sustentado fora das rodadas
+# especiais ~ 2,3 itens/s x 15 pts x4 (sequência) x2 (nível) ~ 270 pts/s.
+MAX_PONTOS_POR_SEGUNDO = 300
+MARGEM_PONTOS = 150          # cobre o bônus fixo de rodada perfeita (até 300)
 MARGEM_TEMPO = 3             # segundos de tolerância entre cliente e servidor
 
 # Limite simples de tentativas de login por IP
@@ -237,6 +240,17 @@ def ranking():
     )
 
 
+def nivel_por_pontos(pontos):
+    """Mesma conta de nivelPorPontos() em static/js/game.js."""
+    nivel = 1
+    passo = PONTOS_POR_NIVEL
+    while pontos >= passo:
+        pontos -= passo
+        nivel += 1
+        passo += AUMENTO_PASSO_NIVEL
+    return nivel
+
+
 # ---------------------------------------------------------------------------
 # API da partida
 # ---------------------------------------------------------------------------
@@ -278,7 +292,7 @@ def finalizar_partida():
         return jsonify({"ok": False, "erro": "Pontuação recusada: valor impossível para o tempo jogado."}), 400
 
     # O nível é calculado aqui, não aceito do navegador.
-    nivel = 1 + pontos // PONTOS_POR_NIVEL
+    nivel = nivel_por_pontos(pontos)
 
     registrar_partida(session["user_id"], pontos, nivel, tempo)
     return jsonify({"ok": True, "nivel": nivel})
