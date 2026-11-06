@@ -113,6 +113,14 @@ def usuario_logado():
     return "user_id" in session
 
 
+def iniciar_sessao(user):
+    """Entra na conta (usado no login e logo após o cadastro)."""
+    session.clear()  # evita reaproveitar uma sessão antiga
+    session["user_id"] = user["id"]
+    session["user_nome"] = user["nome"]
+    session["user_usuario"] = user["usuario"]
+
+
 def login_obrigatorio(funcao):
     @wraps(funcao)
     def wrapper(*args, **kwargs):
@@ -139,7 +147,15 @@ def registrar_falha_login(ip):
 # ---------------------------------------------------------------------------
 @app.route("/")
 def index():
-    return render_template("index.html")
+    """Abertura do jogo: o play leva ao login (ou às instruções, se já logado)."""
+    return render_template("abertura.html")
+
+
+@app.route("/instrucoes")
+@login_obrigatorio
+def instrucoes():
+    """Como jogar: aparece depois do login e antes da partida."""
+    return render_template("instrucoes.html")
 
 
 @app.route("/cadastro", methods=["GET", "POST"])
@@ -178,8 +194,10 @@ def cadastro():
             flash("Não foi possível criar o usuário.", "danger")
             return redirect(url_for("cadastro"))
 
-        flash("Cadastro realizado com sucesso! Faça login agora.", "success")
-        return redirect(url_for("login"))
+        # Cadastro já entra na conta: segue direto para as instruções
+        iniciar_sessao(buscar_usuario_por_username(usuario))
+        flash("Cadastro realizado com sucesso! Bem-vindo(a)!", "success")
+        return redirect(url_for("instrucoes"))
 
     return render_template("cadastro.html")
 
@@ -206,13 +224,10 @@ def login():
             return redirect(url_for("login"))
 
         _falhas_login.pop(ip, None)
-        session.clear()  # evita reaproveitar uma sessão antiga
-        session["user_id"] = user["id"]
-        session["user_nome"] = user["nome"]
-        session["user_usuario"] = user["usuario"]
+        iniciar_sessao(user)
 
         flash("Login realizado com sucesso!", "success")
-        return redirect(url_for("jogo"))
+        return redirect(url_for("instrucoes"))
 
     return render_template("login.html")
 

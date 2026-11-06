@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ebd8c7">
+  <title>Guardiões da Lagoa</title>
+
+  <!-- Fontes do logotipo (se não carregarem, usa fontes do sistema) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700&family=Lilita+One&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/abertura.css') }}">
+</head>
+<body class="abertura">
+
+  <!-- Fundo vetorial de ondas abstratas da lagoa -->
+  <div class="abertura-fundo-caixa" aria-hidden="true">
+  <svg class="abertura-fundo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="sandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#f5e8da"/>
+        <stop offset="50%" stop-color="#ebd5c1"/>
+        <stop offset="100%" stop-color="#dfc5ad"/>
+      </linearGradient>
+      <linearGradient id="waterGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#69b89d"/>
+        <stop offset="50%" stop-color="#3d978a"/>
+        <stop offset="100%" stop-color="#247477"/>
+      </linearGradient>
+      <linearGradient id="waterGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#4aa3b2"/>
+        <stop offset="50%" stop-color="#26788b"/>
+        <stop offset="100%" stop-color="#144d62"/>
+      </linearGradient>
+    </defs>
+
+    <rect width="1440" height="900" fill="url(#sandGrad)" />
+
+    <!-- Curvas sutis ao centro (estende até a borda esquerda, sem aresta vertical) -->
+    <path d="M -100,540 C 50,530 100,510 200,500 C 500,400 800,600 1200,450 C 1350,380 1480,250 1500,200 L 1500,900 L -100,900 Z" fill="#ded0c0" opacity="0.5"/>
+
+    <!-- Água: canto superior esquerdo -->
+    <path d="M-100,-50 C200,50 400,0 550,-100 L-100,-100 Z" fill="#99caa9" opacity="0.7"/>
+    <path d="M-100,120 C150,150 320,50 480,-80 L-100,-80 Z" fill="url(#waterGrad1)"/>
+    <path d="M-50,300 C200,280 350,150 420,-50 L-100,-50 Z" fill="url(#waterGrad2)" opacity="0.85"/>
+    <path d="M-100,450 C120,420 280,300 350,100 L-100,100 Z" fill="#246a78"/>
+    <path d="M-50,220 C180,200 300,110 400,-20" fill="none" stroke="#a4dbd4" stroke-width="6" opacity="0.6"/>
+    <path d="M-80,370 C100,340 240,230 310,40" fill="none" stroke="#71c3bd" stroke-width="4" opacity="0.5"/>
+
+    <!-- Água: canto inferior esquerdo -->
+    <path d="M-100,600 C150,620 250,750 350,950 L-100,950 Z" fill="#308a8a"/>
+    <path d="M-100,720 C80,730 180,820 240,950 L-100,950 Z" fill="url(#waterGrad1)"/>
+
+    <!-- Água: direita -->
+    <path d="M 950,-100 C 1100,100 1250,150 1500,80 L 1500,-100 Z" fill="url(#waterGrad1)"/>
+    <path d="M 1200,-50 C 1300,80 1400,100 1500,50 L 1500,-50 Z" fill="#205f6e"/>
+    <path d="M 1000,950 C 1050,780 1200,680 1500,620 L 1500,950 Z" fill="url(#waterGrad2)"/>
+    <path d="M 1150,950 C 1220,820 1320,760 1500,720 L 1500,950 Z" fill="#2f9296"/>
+    <path d="M 1300,950 C 1350,880 1420,840 1500,830 L 1500,950 Z" fill="#6dbbb7"/>
+    <path d="M 920,950 C 1000,730 1180,630 1500,560" fill="none" stroke="#7ec4bb" stroke-width="6" opacity="0.6"/>
+    <path d="M 1080,950 C 1160,800 1280,720 1500,670" fill="none" stroke="#368694" stroke-width="4" opacity="0.5"/>
+  </svg>
+  </div>
+
+  <main class="abertura-conteudo">
+    <h1 class="abertura-logo" aria-label="Guardiões da Lagoa">
+      <!-- "GUARDIÕES" curvado -->
+      <svg class="titulo-curvo" viewBox="0 0 800 170" aria-hidden="true">
+        <path id="arcoTitulo" d="M 60,140 Q 400,20 740,140" fill="none" />
+        <text>
+          <textPath href="#arcoTitulo" startOffset="50%" text-anchor="middle">GUARDIÕES</textPath>
+        </text>
+      </svg>
+
+      <span class="titulo-linhas" aria-hidden="true">
+        <span class="texto-cartoon texto-da">DA</span>
+        <span class="texto-cartoon texto-lagoa">LAGOA</span>
+      </span>
+    </h1>
+
+    {# Quem ainda não entrou vai para o login; quem já entrou vai direto às instruções #}
+    <a id="botaoPlay" class="botao-play" aria-label="Iniciar jogo"
+       href="{{ url_for('instrucoes') if session.get('user_id') else url_for('login') }}">
+      <span class="botao-play-icone" aria-hidden="true"></span>
+    </a>
+  </main>
+
+</body>
+</html>
